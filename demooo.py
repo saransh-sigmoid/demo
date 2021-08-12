@@ -1,6 +1,7 @@
 import psycopg2
 from openpyxl.workbook import Workbook
 import pandas as pd
+# write this line at top
 #importing the required libraries
 
 class Total_compensation:
@@ -13,13 +14,15 @@ class Total_compensation:
                 user="postgres",
                 password="1234")
             cursor_object = connection.cursor()
+            # write query in structured way(in kind of indented way)
             query_command = """select emp.ename, emp.empno, dept.dname, (case when enddate is not null then ((enddate-startdate+1)/30)*(jobhist.sal) else ((current_date-startdate+1)/30)*(jobhist.sal) end)as Total_Compensation,
 (case when enddate is not null then ((enddate-startdate+1)/30) else ((current_date-startdate+1)/30) end)as Months_Spent from jobhist, dept, emp 
 where jobhist.deptno=dept.deptno and jobhist.empno=emp.empno"""
             # sql command to show the desired data
 
             cursor_object.execute(query_command)
-
+            
+            # By using copy command in postgreSQL we can save result into .xlsx in fewer lines of code
             columns = [desc[0] for desc in cursor_object.description]
             data = cursor_object.fetchall()
             df = pd.DataFrame(list(data), columns=columns)
